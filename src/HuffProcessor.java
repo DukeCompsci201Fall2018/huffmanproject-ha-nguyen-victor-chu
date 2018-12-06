@@ -60,11 +60,52 @@ public class HuffProcessor {
 	 */
 	public void decompress(BitInputStream in, BitOutputStream out){
 
-		while (true){
-			int val = in.readBits(BITS_PER_WORD);
-			if (val == -1) break;
-			out.writeBits(BITS_PER_WORD, val);
+//		while (true){
+//			int val = in.readBits(BITS_PER_WORD);
+//			if (val == -1) break;
+//			out.writeBits(BITS_PER_WORD, val);
+//		}
+//		out.close();
+		if(in.readBits(BITS_PER_INT) == -1) {
+			throw new HuffException("reading bits failed");
 		}
+		int bits = in.readBits(BITS_PER_INT);
+		if (bits!= HUFF_TREE) {
+			throw new HuffException("illegal header starts with "+bits);
+		}
+		
+		HuffNode root = readTreeHeader(in);
+		readCompressedBits(root,in,out);
 		out.close();
+		
 	}
+
+
+	private void readCompressedBits(HuffNode root, BitInputStream in, BitOutputStream out) {
+		//read a single bit
+		
+//		int bit = in.
+//		if(bit == -1) throw new IndexOutOfBoundsException();
+//		if(bit==0) {
+//			
+//		}
+		
+		//if (bit == -1) throw exception
+		//if (bit == 0) {
+		    //left = recursiveCall()
+		    //right = recursiveCall()
+		    //return new HuffNode(0,0,left,right);
+		//}
+//		else {
+//		    value = read nine bits from input
+//		    return new HuffNode(value,0,null,null);
+//		}
+
+	}
+
+	private HuffNode readTreeHeader(BitInputStream in) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }
