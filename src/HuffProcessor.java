@@ -60,7 +60,7 @@ public class HuffProcessor {
 	{
 		
 		while(true) {
-			int bit = in.readBits(8);
+			int bit = in.readBits(BITS_PER_WORD);
 			if(bit == -1) break;
 			String code= codings[bit];//this corresponds to the encodings
 			
