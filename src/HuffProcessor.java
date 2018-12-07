@@ -55,7 +55,7 @@ public class HuffProcessor {
 		
 	}
 	
-	public void writeCompressedBits(String[] codings, BitInputStream in, BitOutputStream out)
+	private void writeCompressedBits(String[] codings, BitInputStream in, BitOutputStream out)
 	//takes the message and encodes it
 	{
 		
@@ -74,7 +74,7 @@ public class HuffProcessor {
 		out.writeBits(code.length(),Integer.parseInt(code,2));
 	}
 	
-	public void writeHeader(HuffNode root, BitOutputStream out)
+	private void writeHeader(HuffNode root, BitOutputStream out)
 	{
 		if(root.myLeft == null && root.myRight == null)
 		{
@@ -91,7 +91,7 @@ public class HuffProcessor {
 		
 	}
 	
-	public String[] makeCodingsFromTree(HuffNode root)
+	private String[] makeCodingsFromTree(HuffNode root)
 	{
 		String[] encodings = new String[ALPH_SIZE+1];
 		codingHelper(root, "",encodings);
@@ -99,7 +99,7 @@ public class HuffProcessor {
 		
 	}
 	
-	public void codingHelper(HuffNode root, String path, String[] encodings)
+	private void codingHelper(HuffNode root, String path, String[] encodings)
 	{
 
     	if(root == null)return;
@@ -115,7 +115,7 @@ public class HuffProcessor {
     	codingHelper(root.myRight, path + "1",encodings);
 	}
 	
-	public HuffNode makeTreeFromCounts(int[] counts)
+	private HuffNode makeTreeFromCounts(int[] counts)
 	{
 		PriorityQueue<HuffNode> pq = new PriorityQueue<HuffNode>();
 		for(int i = 0; i < counts.length;i++)
@@ -140,7 +140,7 @@ public class HuffProcessor {
 	}
 	
 	
-	public int[] readForCounts(BitInputStream in)
+	private int[] readForCounts(BitInputStream in)
 	{
 		int[] freq = new int[ALPH_SIZE+1];
 		while(true)
@@ -180,7 +180,7 @@ public class HuffProcessor {
 	}
 
 
-	public void readCompressedBits(HuffNode root, BitInputStream in, BitOutputStream out) {
+	private void readCompressedBits(HuffNode root, BitInputStream in, BitOutputStream out) {
 		//read a single bit
 		
 		HuffNode current = root; 
@@ -214,7 +214,7 @@ public class HuffProcessor {
 
 	
 	
-	public HuffNode readTreeHeader(BitInputStream in) {
+	private HuffNode readTreeHeader(BitInputStream in) {
 		//this reads the header.
 		//after reading the first 
 		//each letter is the 9 bit in our tree.
