@@ -143,7 +143,7 @@ public class HuffProcessor {
 	public int[] readForCounts(BitInputStream in)
 	{
 		int[] freq = new int[ALPH_SIZE+1];
-		for(int i = 0; i < freq.length;i++)
+		while(true)
 		{
 			int bitvalue = in.readBits(BITS_PER_WORD);
 			if(bitvalue == -1) 
