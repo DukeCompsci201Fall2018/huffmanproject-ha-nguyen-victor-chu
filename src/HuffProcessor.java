@@ -1,3 +1,4 @@
+import java.util.PriorityQueue;
 
 /**
  * Although this class has a history of several years,
@@ -42,14 +43,57 @@ public class HuffProcessor {
 	 */
 	public void compress(BitInputStream in, BitOutputStream out){
 
-		while (true){
-			int val = in.readBits(BITS_PER_WORD);
-			if (val == -1) break;
-			out.writeBits(BITS_PER_WORD, val);
-		}
+		int[] counts = readForCounts(in);
+		HuffNode root = makeTreeFromCounts(counts);
+		//String[] codings = makeCodingsFromTree(root);
+		
+		out.writeBits(BITS_PER_INT, HUFF_TREE);
+		//writeHeader(root,out);
+		in.reset();
+		//writeCompressedBits(codings,in,out);
 		out.close();
+		
 	}
-	/**
+	
+	public HuffNode makeTreeFromCounts(int[] counts)
+	{
+		PriorityQueue<HuffNode> pq = new PriorityQueue<HuffNode>();
+		for(int i = 0; i < counts.length;i++)
+		{
+			if(counts[i] > 0)
+			{
+				pq.add(new HuffNode(i, counts[i],null,null));
+			}
+		}//build the priority queue, makes sense
+			//we remove the least occuring character first
+		
+		while(pq.size() > 1)
+		{
+			HuffNode left = pq.remove();
+			HuffNode right = pq.remove();
+			HuffNode t = new HuffNode(0, left.myWeight+ right.myWeight, left, right);//intermediate node
+			//what to put as value?
+			pq.add(t);
+		}
+		HuffNode root = pq.remove();
+		return root;
+	}
+	
+	
+	public int[] readForCounts(BitInputStream in)
+	{
+		int[] freq = new int[ALPH_SIZE+1];
+		for(int i = 0; i < freq.length;i++)
+		{
+			int bitvalue = in.readBits(BITS_PER_WORD);
+			if(bitvalue == -1) freq[PSEUDO_EOF] =1; 
+			freq[bitvalue]++;//increase the occurance of the bti
+		}
+		
+		return freq;
+	}
+	
+	/**s
 	 * Decompresses a file. Output file must be identical bit-by-bit to the
 	 * original.
 	 *
@@ -60,15 +104,6 @@ public class HuffProcessor {
 	 */
 	public void decompress(BitInputStream in, BitOutputStream out){
 
-//		while (true){
-//			int val = in.readBits(BITS_PER_WORD);
-//			if (val == -1) break;
-//			out.writeBits(BITS_PER_WORD, val);
-//		}
-//		out.close();
-		if(in.readBits(BITS_PER_INT) == -1) {
-			throw new HuffException("reading bits failed");
-		}
 		int bits = in.readBits(BITS_PER_INT);
 		if (bits!= HUFF_TREE) {
 			throw new HuffException("illegal header starts with "+bits);
@@ -84,28 +119,56 @@ public class HuffProcessor {
 	private void readCompressedBits(HuffNode root, BitInputStream in, BitOutputStream out) {
 		//read a single bit
 		
-//		int bit = in.
-//		if(bit == -1) throw new IndexOutOfBoundsException();
-//		if(bit==0) {
-//			
-//		}
+		HuffNode current = root; 
+		while(true)
+		{
+			int bits = in.readBits(1);
+			if(bits == -1)
+			{
+				throw new HuffException("bad input, no PSEUDO_EOF");
+			}
+			else {
+				if(bits==0) 
+					current = current.myLeft;
+				else
+					current = current.myRight;
+				
+				if(current.myLeft == null && current.myRight == null)
+				{
+					if(current.myValue == PSEUDO_EOF)
+						break;
+					
+					else {
+						out.writeBits(BITS_PER_WORD, current.myValue);
+						current = root;//need to retraverse the tree
+					}
+				}
+			}
+		}
 		
-		//if (bit == -1) throw exception
-		//if (bit == 0) {
-		    //left = recursiveCall()
-		    //right = recursiveCall()
-		    //return new HuffNode(0,0,left,right);
-		//}
-//		else {
-//		    value = read nine bits from input
-//		    return new HuffNode(value,0,null,null);
-//		}
-
 	}
 
+	
+	
 	private HuffNode readTreeHeader(BitInputStream in) {
-		// TODO Auto-generated method stub
-		return null;
+		//this reads the header.
+		//after reading the first 
+		//each letter is the 9 bit in our tree.
+		
+		int bit = in.readBits(1);//reads the next bit
+		if (bit == -1) throw new HuffException("reading bits failed");
+		if (bit == 0) {//explore left and right subtrees until we get to a letter
+		    HuffNode left =  readTreeHeader(in);
+		    HuffNode right =  readTreeHeader(in);//recursive calls
+		    return new HuffNode(0,0,left,right);//internal nodes
+		}
+		else {
+		    int value = in.readBits(BITS_PER_WORD + 1);
+		    //do BITS_PER_WORD+1 for the 9 bits
+		    return new HuffNode(value,0,null,null);//leafs
+		}
+		
+	
 	}
 	
 }
