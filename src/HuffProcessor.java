@@ -64,8 +64,9 @@ public class HuffProcessor {
 			if(bit == -1) break;
 			String code= codings[bit];//this corresponds to the encodings
 			
-			
-			out.writeBits(code.length(),Integer.parseInt(code,2));
+			int v = Integer.parseInt(code,2);
+			out.writeBits(code.length(),v);
+			//converts to a binary string
 		}
 	
 		
