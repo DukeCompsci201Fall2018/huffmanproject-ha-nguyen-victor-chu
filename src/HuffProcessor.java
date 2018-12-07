@@ -114,7 +114,7 @@ public class HuffProcessor {
     	codingHelper(root.myRight, path + "1",encodings);
 	}
 	
-	public HuffNode makeTreeFromCounts(int[] counts)
+	private HuffNode makeTreeFromCounts(int[] counts)
 	{
 		PriorityQueue<HuffNode> pq = new PriorityQueue<HuffNode>();
 		for(int i = 0; i < counts.length;i++)
@@ -139,14 +139,18 @@ public class HuffProcessor {
 	}
 	
 	
-	public int[] readForCounts(BitInputStream in)
+	private int[] readForCounts(BitInputStream in)
 	{
 		int[] freq = new int[ALPH_SIZE+1];
 		for(int i = 0; i < freq.length;i++)
 		{
 			int bitvalue = in.readBits(BITS_PER_WORD);
-			if(bitvalue == -1) freq[PSEUDO_EOF] =1; 
-			freq[bitvalue]++;//increase the occurance of the bti
+			if(bitvalue == -1) 
+			{
+				freq[PSEUDO_EOF] =1; 
+				break;
+			}
+			freq[bitvalue]++;//increase the occurance
 		}
 		
 		return freq;
@@ -161,7 +165,7 @@ public class HuffProcessor {
 	 * @param out
 	 *            Buffered bit stream writing to the output file.
 	 */
-	public void decompress(BitInputStream in, BitOutputStream out){
+	private void decompress(BitInputStream in, BitOutputStream out){
 
 		int bits = in.readBits(BITS_PER_INT);
 		if (bits!= HUFF_TREE) {
